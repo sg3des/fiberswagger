@@ -1,4 +1,4 @@
-module github.com/gofiber/swagger
+module github.com/sg3des/fiberswagger
 
 go 1.21
 
