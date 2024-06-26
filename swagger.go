@@ -3,14 +3,12 @@ package swagger
 import (
 	"fmt"
 	"html/template"
-	"net/http"
 	"path"
 	"strings"
 	"sync"
 
-	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/filesystem"
-	"github.com/gofiber/fiber/v2/utils"
+	"github.com/gofiber/fiber/v3"
+	"github.com/gofiber/fiber/v3/middleware/filesystem"
 	swaggerFiles "github.com/swaggo/files/v2"
 	"github.com/swaggo/swag"
 )
@@ -34,10 +32,10 @@ func New(config ...Config) fiber.Handler {
 	var (
 		prefix string
 		once   sync.Once
-		fs     = filesystem.New(filesystem.Config{Root: http.FS(swaggerFiles.FS)})
+		fs     = filesystem.New(filesystem.Config{Root: swaggerFiles.FS})
 	)
 
-	return func(c *fiber.Ctx) error {
+	return func(c fiber.Ctx) error {
 		// Set prefix
 		once.Do(
 			func() {
@@ -55,7 +53,7 @@ func New(config ...Config) fiber.Handler {
 			},
 		)
 
-		p := c.Path(utils.CopyString(c.Params("*")))
+		p := c.Path(c.Params("*"))
 
 		switch p {
 		case defaultIndex:
@@ -68,14 +66,14 @@ func New(config ...Config) fiber.Handler {
 			}
 			return c.Type("json").SendString(doc)
 		case "", "/":
-			return c.Redirect(path.Join(prefix, defaultIndex), fiber.StatusMovedPermanently)
+			return c.Redirect().Status(fiber.StatusMovedPermanently).To(path.Join(prefix, defaultIndex))
 		default:
 			return fs(c)
 		}
 	}
 }
 
-func getForwardedPrefix(c *fiber.Ctx) string {
+func getForwardedPrefix(c fiber.Ctx) string {
 	header := c.GetReqHeaders()["X-Forwarded-Prefix"]
 
 	if len(header) == 0 {
