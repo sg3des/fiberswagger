@@ -2,8 +2,6 @@ module github.com/sg3des/fiberswagger/v3
 
 go 1.21
 
-toolchain go1.22.4
-
 require (
 	github.com/gofiber/fiber/v3 v3.0.0-beta.2
 	github.com/swaggo/files/v2 v2.0.0
